@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using mynt.Data;
+using mynt.Endpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -91,10 +93,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Register endpoints
-//app.MapAuthEndpoints();
-//app.MapTeamEndpoints();
-//app.MapUserEndpoints();
-//app.MapChallengeEndpoints();
+app.MapUserEndpoints();
+app.MapAuthEndpoints();
 
 app.Run();
 
