@@ -1,5 +1,4 @@
 namespace mynt.Models.DTOs.User;
-using mynt.Models.DTOs.User;
 
 public class UserDto
 {
