@@ -1,0 +1,43 @@
+using Microsoft.EntityFrameworkCore;
+using mynt.Data;
+using mynt.Models.DTOs.User;
+
+namespace mynt.Endpoints;
+
+public static class UserEndpoints
+{
+    public static void MapUserEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/api/users/by-email/{email}", async (string email, ApplicationDbContext db) =>
+        {
+            var user = await db.Users
+                .Include(u => u.InvitedBy)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return Results.NotFound();
+
+            var response = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                Invited = user.Invited,
+                InvitedBy = user.InvitedBy == null ? null : new UserInviterDto
+                {
+                    Id = user.InvitedBy.Id,
+                    Email = user.InvitedBy.Email,
+                },
+                FinancialGroupMemberships = user.FinancialGroupMemberships.Select(fgm => new UserFinancialGroupDto
+                {
+                    FinancialGroupId = fgm.FinancialGroup.Id,
+                    FinancialGroupName = fgm.FinancialGroup.Name,
+                    Role = fgm.Role.ToString(),
+                }).ToList()
+            };
+
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(policy => policy.RequireRole("Coach", "Admin"));
+    }
+} 

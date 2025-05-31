@@ -1,0 +1,20 @@
+rules:
+  - name: "Each DTO class must be in its own file"
+    description: "Ensure that every class with a name ending in 'Dto' is defined in a file with the same name as the class."
+    applies_to: "**/*.cs"
+    check: |
+      For each C# file:
+        - If the file contains more than one class with a name ending in 'Dto', or
+        - If the class name does not match the file name (ignoring case and extension),
+        - Then raise a warning.
+    severity: warning
+    examples:
+      bad: |
+        // File: UserDto.cs
+        public class UserDto { }
+        public class UserInviterDto { }
+      good: |
+        // File: UserDto.cs
+        public class UserDto { }
+        // File: UserInviterDto.cs
+        public class UserInviterDto { } 

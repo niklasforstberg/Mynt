@@ -1,0 +1,9 @@
+namespace mynt.Models.DTOs.User
+{
+    public class UserFinancialGroupDto
+    {
+        public int FinancialGroupId { get; set; }
+        public string FinancialGroupName { get; set; }
+        public string Role { get; set; }
+    }
+} 
