@@ -1,2 +1,2 @@
-# mynt
+# Mynt
 A net worth tracker
