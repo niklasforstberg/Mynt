@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace mynt.Models
+namespace Mynt.Models
 {
     public class FinancialGroup
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public ICollection<FinancialGroupMember> Members { get; set; }

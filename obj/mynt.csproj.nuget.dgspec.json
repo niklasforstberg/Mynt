@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dev\\mynt\\mynt.csproj": {}
+    "D:\\dev\\Mynt\\mynt.csproj": {}
   },
   "projects": {
-    "D:\\dev\\mynt\\mynt.csproj": {
+    "D:\\dev\\Mynt\\mynt.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dev\\mynt\\mynt.csproj",
+        "projectUniqueName": "D:\\dev\\Mynt\\mynt.csproj",
         "projectName": "mynt",
-        "projectPath": "D:\\dev\\mynt\\mynt.csproj",
+        "projectPath": "D:\\dev\\Mynt\\mynt.csproj",
         "packagesPath": "C:\\Users\\lisaa\\.nuget\\packages\\",
-        "outputPath": "D:\\dev\\mynt\\obj\\",
+        "outputPath": "D:\\dev\\Mynt\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\lisaa\\AppData\\Roaming\\NuGet\\NuGet.Config"

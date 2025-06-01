@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>86faa019-43d9-44dc-8739-d7b751456cfc</UserSecretsId>
+    <AssemblyName>Mynt</AssemblyName>
+    <RootNamespace>Mynt</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 using System;
 
-namespace mynt.Models
+namespace Mynt.Models
 {
     public class AssetValue
     {

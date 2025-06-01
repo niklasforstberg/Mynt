@@ -2,13 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using mynt.Data;
-using mynt.Models;
-using mynt.Models.DTOs.Auth;
-using mynt.Models.DTOs.User;
+using Mynt.Data;
+using Mynt.Models;
+using Mynt.Models.DTOs.Auth;
+using Mynt.Models.DTOs.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-namespace mynt.Endpoints;
+namespace Mynt.Endpoints;
 
 public static class AuthEndpoints
 {
@@ -52,7 +52,7 @@ public static class AuthEndpoints
 
         app.MapPost("/api/auth/setup/first-admin", async (CreateAdminDto request, ApplicationDbContext db, IConfiguration config) =>
         {
-            if (await db.Users.AnyAsync(u => u.Role == User.UserRole.Admin))
+            if (await db.Users.AnyAsync(u => u.Role == UserRole.Admin))
             {
                 return Results.BadRequest("Admin already exists. Use regular admin creation endpoint.");
             }
@@ -61,7 +61,7 @@ public static class AuthEndpoints
             {
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = User.UserRole.Admin
+                Role = UserRole.Admin
             };
 
             db.Users.Add(user);
@@ -112,7 +112,7 @@ public static class AuthEndpoints
             {
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = User.UserRole.Admin
+                Role = UserRole.Admin
             };
 
             db.Users.Add(user);

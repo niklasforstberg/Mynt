@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using mynt.Data;
+using Mynt.Data;
 
 #nullable disable
 
-namespace mynt.Migrations
+namespace Mynt.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace mynt.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("mynt.Models.Asset", b =>
+            modelBuilder.Entity("Mynt.Models.Asset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +64,7 @@ namespace mynt.Migrations
                     b.ToTable("Assets");
                 });
 
-            modelBuilder.Entity("mynt.Models.AssetType", b =>
+            modelBuilder.Entity("Mynt.Models.AssetType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,7 +85,7 @@ namespace mynt.Migrations
                     b.ToTable("AssetTypes");
                 });
 
-            modelBuilder.Entity("mynt.Models.AssetValue", b =>
+            modelBuilder.Entity("Mynt.Models.AssetValue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,7 +109,7 @@ namespace mynt.Migrations
                     b.ToTable("AssetValues");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroup", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -129,7 +129,7 @@ namespace mynt.Migrations
                     b.ToTable("FinancialGroups");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroupInvitation", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroupInvitation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +166,7 @@ namespace mynt.Migrations
                     b.ToTable("FinancialGroupInvitations");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroupMember", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroupMember", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -185,7 +185,7 @@ namespace mynt.Migrations
                     b.ToTable("FinancialGroupMembers");
                 });
 
-            modelBuilder.Entity("mynt.Models.User", b =>
+            modelBuilder.Entity("Mynt.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,21 +224,21 @@ namespace mynt.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("mynt.Models.Asset", b =>
+            modelBuilder.Entity("Mynt.Models.Asset", b =>
                 {
-                    b.HasOne("mynt.Models.AssetType", "AssetType")
+                    b.HasOne("Mynt.Models.AssetType", "AssetType")
                         .WithMany()
                         .HasForeignKey("AssetTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mynt.Models.FinancialGroup", "FinancialGroup")
+                    b.HasOne("Mynt.Models.FinancialGroup", "FinancialGroup")
                         .WithMany("Assets")
                         .HasForeignKey("FinancialGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mynt.Models.User", "User")
+                    b.HasOne("Mynt.Models.User", "User")
                         .WithMany("Assets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -251,9 +251,9 @@ namespace mynt.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("mynt.Models.AssetValue", b =>
+            modelBuilder.Entity("Mynt.Models.AssetValue", b =>
                 {
-                    b.HasOne("mynt.Models.Asset", "Asset")
+                    b.HasOne("Mynt.Models.Asset", "Asset")
                         .WithMany("AssetValues")
                         .HasForeignKey("AssetId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -262,15 +262,15 @@ namespace mynt.Migrations
                     b.Navigation("Asset");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroupInvitation", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroupInvitation", b =>
                 {
-                    b.HasOne("mynt.Models.FinancialGroup", "FinancialGroup")
+                    b.HasOne("Mynt.Models.FinancialGroup", "FinancialGroup")
                         .WithMany("Invitations")
                         .HasForeignKey("FinancialGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mynt.Models.User", "InvitedByUser")
+                    b.HasOne("Mynt.Models.User", "InvitedByUser")
                         .WithMany("SentInvitations")
                         .HasForeignKey("InvitedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -281,15 +281,15 @@ namespace mynt.Migrations
                     b.Navigation("InvitedByUser");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroupMember", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroupMember", b =>
                 {
-                    b.HasOne("mynt.Models.FinancialGroup", "FinancialGroup")
+                    b.HasOne("Mynt.Models.FinancialGroup", "FinancialGroup")
                         .WithMany("Members")
                         .HasForeignKey("FinancialGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mynt.Models.User", "User")
+                    b.HasOne("Mynt.Models.User", "User")
                         .WithMany("FinancialGroupMemberships")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -300,21 +300,21 @@ namespace mynt.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("mynt.Models.User", b =>
+            modelBuilder.Entity("Mynt.Models.User", b =>
                 {
-                    b.HasOne("mynt.Models.User", "InvitedBy")
+                    b.HasOne("Mynt.Models.User", "InvitedBy")
                         .WithMany()
                         .HasForeignKey("InvitedById");
 
                     b.Navigation("InvitedBy");
                 });
 
-            modelBuilder.Entity("mynt.Models.Asset", b =>
+            modelBuilder.Entity("Mynt.Models.Asset", b =>
                 {
                     b.Navigation("AssetValues");
                 });
 
-            modelBuilder.Entity("mynt.Models.FinancialGroup", b =>
+            modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>
                 {
                     b.Navigation("Assets");
 
@@ -323,7 +323,7 @@ namespace mynt.Migrations
                     b.Navigation("Members");
                 });
 
-            modelBuilder.Entity("mynt.Models.User", b =>
+            modelBuilder.Entity("Mynt.Models.User", b =>
                 {
                     b.Navigation("Assets");
 

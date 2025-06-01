@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using mynt.Models;
-namespace mynt.Data;
+using Mynt.Models;
+namespace Mynt.Data;
 
 public class ApplicationDbContext : DbContext
 {

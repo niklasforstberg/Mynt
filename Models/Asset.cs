@@ -1,5 +1,5 @@
 
-namespace mynt.Models
+namespace Mynt.Models
 {
     public class Asset
     {
@@ -7,9 +7,8 @@ namespace mynt.Models
         public int FinancialGroupId { get; set; }
         public int UserId { get; set; }
         public int AssetTypeId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public bool BusinessBankAccount { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public FinancialGroup FinancialGroup { get; set; }

@@ -1,4 +1,4 @@
-namespace mynt.Models.DTOs.Auth;
+namespace Mynt.Models.DTOs.Auth;
 
 public class RegisterDto
 {

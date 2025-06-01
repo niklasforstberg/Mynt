@@ -1,6 +1,6 @@
-@mynt_HostAddress = http://localhost:5069
+@Mynt_HostAddress = http://localhost:5069
 
-GET {{mynt_HostAddress}}/weatherforecast/
+GET {{Mynt_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using mynt.Data;
-using mynt.Endpoints;
+using Mynt.Data;
+using Mynt.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 

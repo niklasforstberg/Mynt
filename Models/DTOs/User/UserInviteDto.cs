@@ -1,4 +1,4 @@
-namespace mynt.Models.DTOs.User;
+namespace Mynt.Models.DTOs.User;
 
 public class UserInviteDto
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using mynt.Data;
-using mynt.Models.DTOs.User;
+using Mynt.Data;
+using Mynt.Models.DTOs.User;
 
-namespace mynt.Endpoints;
+namespace Mynt.Endpoints;
 
 public static class UserEndpoints
 {
