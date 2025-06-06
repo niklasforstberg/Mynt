@@ -4,6 +4,7 @@ namespace Mynt.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public bool IsAsset  { get; set; }
+        public bool IsAsset { get; set; } = true;
+        public bool IsPhysical { get; set; } = false;
     }
 } 

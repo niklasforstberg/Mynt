@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mynt.Data;
 using Mynt.Models.DTOs.User;
+using Mynt.Models.Enums;
 
 namespace Mynt.Endpoints;
 
@@ -21,7 +22,7 @@ public static class UserEndpoints
             {
                 Id = user.Id,
                 Email = user.Email,
-                Role = user.Role.ToString(),
+                Role = user.Role?.ToString() ?? "User",
                 Invited = user.Invited,
                 InvitedBy = user.InvitedBy == null ? null : new UserInviterDto
                 {
@@ -31,8 +32,8 @@ public static class UserEndpoints
                 FinancialGroupMemberships = user.FinancialGroupMemberships.Select(fgm => new UserFinancialGroupDto
                 {
                     FinancialGroupId = fgm.FinancialGroup.Id,
-                    FinancialGroupName = fgm.FinancialGroup.Name,
-                    Role = fgm.Role.ToString(),
+                    FinancialGroupName = fgm.FinancialGroup.Name ?? "Unknown",
+                    Role = fgm.Role?.ToString() ?? "User",
                 }).ToList()
             };
 

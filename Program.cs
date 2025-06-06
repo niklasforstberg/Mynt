@@ -44,9 +44,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
-        builder.AllowAnyOrigin()
+        builder.WithOrigins("http://localhost:5173")
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 
@@ -81,6 +82,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString ?? throw new InvalidOperationException("Connection string not found"));
 });
 
+builder.Services.AddScoped<IUserActivityService, UserActivityService>();
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -95,6 +98,7 @@ app.UseAuthorization();
 // Register endpoints
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
+app.MapUserActivityEndpoints();
 
 app.Run();
 

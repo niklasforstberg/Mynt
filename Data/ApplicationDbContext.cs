@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<AssetType> AssetTypes { get; set; }
     public DbSet<Asset> Assets { get; set; }
     public DbSet<AssetValue> AssetValues { get; set; }
+    public DbSet<UserActivity> UserActivities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,8 +47,14 @@ public class ApplicationDbContext : DbContext
             .HasOne(inv => inv.InvitedByUser)
             .WithMany(u => u.SentInvitations)
             .HasForeignKey(inv => inv.InvitedByUserId);
+        
+        // UserActivity: relationships
+        modelBuilder.Entity<UserActivity>()
+            .HasOne(ua => ua.User)
+            .WithMany()
+            .HasForeignKey(ua => ua.UserId);
 
-        // Asset: relationships
+         // Asset: relationships
         modelBuilder.Entity<Asset>()
             .HasOne(a => a.FinancialGroup)
             .WithMany(fg => fg.Assets)

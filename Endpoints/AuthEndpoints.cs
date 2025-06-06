@@ -8,6 +8,8 @@ using Mynt.Models.DTOs.Auth;
 using Mynt.Models.DTOs.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Mynt.Models.Enums;
+
 namespace Mynt.Endpoints;
 
 public static class AuthEndpoints
@@ -15,7 +17,7 @@ public static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         // Public endpoints (no auth required)
-        app.MapPost("/api/auth/login", async (LoginDto request, ApplicationDbContext db, IConfiguration config) =>
+        app.MapPost("/api/auth/login", async (LoginDto request, ApplicationDbContext db, IConfiguration config, HttpContext context, IUserActivityService activityService) =>
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             
@@ -25,32 +27,48 @@ public static class AuthEndpoints
             }
 
             var token = GenerateJwtToken(user, config);
+
+            // Log the login activity
+            await activityService.LogActivityAsync(
+                user.Id, 
+                UserActivityAction.Login,
+                "User logged in successfully"
+            );
+            await db.SaveChangesAsync();
+
             return Results.Ok(new { Token = token });
         });
 
-        app.MapPost("/api/auth/register", async (RegisterDto request, ApplicationDbContext db, IConfiguration config) =>
+        app.MapPost("/api/auth/register", async (RegisterDto request, ApplicationDbContext db, IConfiguration config, IUserActivityService activityService) =>
         {
             if (await db.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return Results.BadRequest("Email already registered");
             }
 
-            var userRole = db.AssetTypes.FirstOrDefault(at => at.Name == request.Role)?.Id;
+            var userRole = UserRole.User;
 
             var user = new User
             {
                 Email = request.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = userRole
             };
 
             db.Users.Add(user);
             await db.SaveChangesAsync();
 
             var token = GenerateJwtToken(user, config);
+
+            await activityService.LogActivityAsync(
+                user.Id, 
+                UserActivityAction.Register,
+                "User registered successfully"
+            );
             return Results.Ok(new { Token = token });
         });
 
-        app.MapPost("/api/auth/setup/first-admin", async (CreateAdminDto request, ApplicationDbContext db, IConfiguration config) =>
+        app.MapPost("/api/auth/setup/first-admin", async (CreateAdminDto request, ApplicationDbContext db, IConfiguration config, IUserActivityService activityService) =>
         {
             if (await db.Users.AnyAsync(u => u.Role == UserRole.Admin))
             {
@@ -63,6 +81,12 @@ public static class AuthEndpoints
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = UserRole.Admin
             };
+
+            await activityService.LogActivityAsync(
+                user.Id, 
+                UserActivityAction.SetupFirstAdmin,
+                "First admin setup successfully"
+            );
 
             db.Users.Add(user);
             await db.SaveChangesAsync();
@@ -101,7 +125,7 @@ public static class AuthEndpoints
         });
 
         // Admin endpoints
-        app.MapPost("/api/auth/admin/create", async (CreateAdminDto request, ApplicationDbContext db) =>
+        app.MapPost("/api/auth/admin/create", async (CreateAdminDto request, ApplicationDbContext db, IUserActivityService activityService) =>
         {
             if (await db.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -114,6 +138,12 @@ public static class AuthEndpoints
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = UserRole.Admin
             };
+
+            await activityService.LogActivityAsync(
+                user.Id, 
+                UserActivityAction.CreateAdmin,
+                "Admin user created successfully"
+            );
 
             db.Users.Add(user);
             await db.SaveChangesAsync();
