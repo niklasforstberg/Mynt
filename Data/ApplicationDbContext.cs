@@ -31,30 +31,33 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<FinancialGroupMember>()
             .HasOne(fgm => fgm.User)
             .WithMany(u => u.FinancialGroupMemberships)
-            .HasForeignKey(fgm => fgm.UserId);
+            .HasForeignKey(fgm => fgm.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<FinancialGroupMember>()
             .HasOne(fgm => fgm.FinancialGroup)
             .WithMany(fg => fg.Members)
-            .HasForeignKey(fgm => fgm.FinancialGroupId);
+            .HasForeignKey(fgm => fgm.FinancialGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // FinancialGroupInvitation: relationships
         modelBuilder.Entity<FinancialGroupInvitation>()
             .HasOne(inv => inv.FinancialGroup)
             .WithMany(fg => fg.Invitations)
-            .HasForeignKey(inv => inv.FinancialGroupId);
+            .HasForeignKey(inv => inv.FinancialGroupId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<FinancialGroupInvitation>()
             .HasOne(inv => inv.InvitedByUser)
-            .WithMany(u => u.SentInvitations)
-            .HasForeignKey(inv => inv.InvitedByUserId);
+            .WithMany()  // No navigation property on User side
+            .HasForeignKey(inv => inv.InvitedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         // UserActivity: relationships
         modelBuilder.Entity<UserActivity>(entity =>
         {
-            entity.Property(e => e.UserId).IsRequired();
             entity.HasOne(e => e.User)
-                .WithMany()
+                .WithMany()  // No navigation property on User side
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
@@ -63,12 +66,14 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Asset>()
             .HasOne(a => a.FinancialGroup)
             .WithMany(fg => fg.Assets)
-            .HasForeignKey(a => a.FinancialGroupId);
+            .HasForeignKey(a => a.FinancialGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Asset>()
             .HasOne(a => a.User)
             .WithMany(u => u.Assets)
-            .HasForeignKey(a => a.UserId);
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Asset>()
             .HasOne(a => a.AssetType)

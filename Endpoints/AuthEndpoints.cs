@@ -82,12 +82,6 @@ public static class AuthEndpoints
                 Role = UserRole.Admin
             };
 
-            await activityService.LogActivityAsync(
-                user.Id, 
-                UserActivityAction.SetupFirstAdmin,
-                "First admin setup successfully"
-            );
-
             db.Users.Add(user);
             await db.SaveChangesAsync();
 
@@ -138,12 +132,6 @@ public static class AuthEndpoints
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = UserRole.Admin
             };
-
-            await activityService.LogActivityAsync(
-                user.Id, 
-                UserActivityAction.CreateAdmin,
-                "Admin user created successfully"
-            );
 
             db.Users.Add(user);
             await db.SaveChangesAsync();

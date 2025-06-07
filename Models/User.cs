@@ -18,7 +18,5 @@ namespace Mynt.Models
 
         public ICollection<FinancialGroupMember> FinancialGroupMemberships { get; set; } = [];
         public ICollection<Asset> Assets { get; set; } = [];
-        public ICollection<FinancialGroupInvitation> SentInvitations { get; set; } = [];
-        public ICollection<UserActivity> UserActivities { get; set; } = [];
     }
 } 
