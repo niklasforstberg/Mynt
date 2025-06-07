@@ -112,7 +112,7 @@ public static class AuthEndpoints
             {
                 Id = user.Id,
                 Email = user.Email,
-                Role = user.Role.ToString(),
+                Role = user.Role.ToString() ?? "Not Set",
                 Invited = user.Invited,
                 InvitedBy = user.InvitedBy == null ? null : new UserInviterDto
                 {

@@ -32,8 +32,7 @@ public static class UserEndpoints
                 FinancialGroupMemberships = user.FinancialGroupMemberships.Select(fgm => new UserFinancialGroupDto
                 {
                     FinancialGroupId = fgm.FinancialGroup.Id,
-                    FinancialGroupName = fgm.FinancialGroup.Name ?? "Unknown",
-                    Role = fgm.Role?.ToString() ?? "User",
+                    FinancialGroupName = fgm.FinancialGroup.Name ?? "Unknown"
                 }).ToList()
             };
 

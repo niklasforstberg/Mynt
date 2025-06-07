@@ -99,6 +99,7 @@ app.UseAuthorization();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapUserActivityEndpoints();
+app.MapAssetTypeEndpoints();
 
 app.Run();
 
