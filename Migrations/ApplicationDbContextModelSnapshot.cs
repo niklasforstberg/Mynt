@@ -56,7 +56,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Assets");
+                    b.ToTable("Assets", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.AssetType", b =>
@@ -76,7 +76,7 @@ namespace Mynt.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AssetTypes");
+                    b.ToTable("AssetTypes", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.AssetValue", b =>
@@ -100,7 +100,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("AssetId");
 
-                    b.ToTable("AssetValues");
+                    b.ToTable("AssetValues", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>
@@ -119,7 +119,7 @@ namespace Mynt.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FinancialGroups");
+                    b.ToTable("FinancialGroups", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroupInvitation", b =>
@@ -156,7 +156,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("InvitedByUserId");
 
-                    b.ToTable("FinancialGroupInvitations");
+                    b.ToTable("FinancialGroupInvitations", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroupMember", b =>
@@ -175,7 +175,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("FinancialGroupId");
 
-                    b.ToTable("FinancialGroupMembers");
+                    b.ToTable("FinancialGroupMembers", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.User", b =>
@@ -213,7 +213,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("InvitedById");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Mynt.Models.Asset", b =>

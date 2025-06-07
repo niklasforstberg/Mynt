@@ -50,10 +50,14 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(inv => inv.InvitedByUserId);
         
         // UserActivity: relationships
-        modelBuilder.Entity<UserActivity>()
-            .HasOne(ua => ua.User)
-            .WithMany()
-            .HasForeignKey(ua => ua.UserId);
+        modelBuilder.Entity<UserActivity>(entity =>
+        {
+            entity.Property(e => e.UserId).IsRequired();
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
          // Asset: relationships
         modelBuilder.Entity<Asset>()
@@ -76,5 +80,10 @@ public class ApplicationDbContext : DbContext
             .HasOne(av => av.Asset)
             .WithMany(a => a.AssetValues)
             .HasForeignKey(av => av.AssetId);
+
+        // Fix for AssetValue.Value decimal precision warning
+        modelBuilder.Entity<AssetValue>()
+            .Property(av => av.Value)
+            .HasPrecision(18, 2);  // Adjust precision/scale as needed for your use case
     }
 } 

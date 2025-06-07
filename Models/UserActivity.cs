@@ -6,7 +6,7 @@ namespace Mynt.Models
     public class UserActivity
     {
         public int Id { get; set; }
-        public required int UserId { get; set; }
+        public int UserId { get; set; }
         public UserActivityAction Action { get; set; }
         public string? Details { get; set; }
         public DateTime Timestamp { get; set; }
@@ -18,6 +18,6 @@ namespace Mynt.Models
         public string? ErrorMessage { get; set; } // For storing any error information
 
         // Navigation property
-        public User? User { get; set; }
+        public User User { get; set; } = null!;
     }
 } 
