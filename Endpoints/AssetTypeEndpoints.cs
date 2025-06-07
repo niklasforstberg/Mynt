@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mynt.Data;
 using Mynt.Models;
+using Mynt.Models.DTOs.AssetType;
 
 namespace Mynt.Endpoints;
 

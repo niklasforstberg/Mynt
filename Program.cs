@@ -100,6 +100,7 @@ app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapUserActivityEndpoints();
 app.MapAssetTypeEndpoints();
+app.MapAssetEndpoints();
 
 app.Run();
 

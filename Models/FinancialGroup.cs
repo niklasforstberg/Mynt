@@ -10,7 +10,7 @@ namespace Mynt.Models
         public string? Name { get; set; }
         public required DateTime CreatedAt { get; set; }
 
-        public required User Owner { get; set; }
+        public User? Owner { get; set; }
         public ICollection<FinancialGroupMember> Members { get; set; } = [];
         public ICollection<Asset> Assets { get; set; } = [];
         public ICollection<FinancialGroupInvitation> Invitations { get; set; } = [];

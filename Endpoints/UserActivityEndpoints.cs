@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Mynt.Data;
 using Mynt.Models;
+using Mynt.Models.DTOs.UserActivity;
 using Mynt.Models.Enums;
 
 namespace Mynt.Endpoints;

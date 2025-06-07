@@ -1,4 +1,3 @@
-
 namespace Mynt.Models
 {
     public class Asset
@@ -12,7 +11,7 @@ namespace Mynt.Models
         public required DateTime CreatedAt { get; set; }
 
         public FinancialGroup? FinancialGroup { get; set; }
-        public required User User { get; set; }
+        public User? User { get; set; }
         public AssetType? AssetType { get; set; }
         public ICollection<AssetValue> AssetValues { get; set; } = [];
 
