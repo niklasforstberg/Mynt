@@ -33,11 +33,4 @@ public static class AssetTypeEndpoints
         })
         .RequireAuthorization(policy => policy.RequireRole("Coach", "Admin"));
     }
-}
-
-public class AssetTypeCreateRequest
-{
-    public required string Name { get; set; }
-    public bool IsAsset { get; set; } = true;
-    public bool IsPhysical { get; set; } = false;
 } 
