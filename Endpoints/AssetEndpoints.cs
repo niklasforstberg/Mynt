@@ -53,7 +53,7 @@ public static class AssetEndpoints
                 FinancialGroupId = a.FinancialGroupId,
                 FinancialGroupName = a.FinancialGroup?.Name,
                 AssetTypeId = a.AssetTypeId,
-                AssetTypeName = a.AssetType?.Name,
+                AssetTypeName = a.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = a.CreatedAt,
                 CurrentValue = a.AssetValues.FirstOrDefault()?.Value
             });
@@ -83,7 +83,7 @@ public static class AssetEndpoints
                 FinancialGroupId = asset.FinancialGroupId,
                 FinancialGroupName = asset.FinancialGroup?.Name,
                 AssetTypeId = asset.AssetTypeId,
-                AssetTypeName = asset.AssetType?.Name,
+                AssetTypeName = asset.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = asset.CreatedAt,
                 CurrentValue = asset.AssetValues.FirstOrDefault()?.Value
             };

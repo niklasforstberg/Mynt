@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Mynt.Data;
 using Mynt.Endpoints;
+using Microsoft.Extensions.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +85,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IUserActivityService, UserActivityService>();
 
+// Add localization services
+builder.Services.AddLocalization();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        "en",
+        "es",
+        "fr",
+        "de"
+        // Add more cultures as needed
+    };
+    
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -101,6 +120,9 @@ app.MapAuthEndpoints();
 app.MapUserActivityEndpoints();
 app.MapAssetTypeEndpoints();
 app.MapAssetEndpoints();
+
+// Add localization middleware
+app.UseRequestLocalization();
 
 app.Run();
 

@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Asset> Assets { get; set; }
     public DbSet<AssetValue> AssetValues { get; set; }
     public DbSet<UserActivity> UserActivities { get; set; }
+    public DbSet<AssetTypeTranslation> AssetTypeTranslations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
