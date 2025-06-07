@@ -17,4 +17,58 @@ rules:
         // File: UserDto.cs
         public class UserDto { }
         // File: UserInviterDto.cs
-        public class UserInviterDto { } 
+        public class UserInviterDto { }
+
+  - name: "API endpoints must return DTOs, not raw entities"
+    description: "Ensure that API endpoints always return DTOs instead of raw entity/model objects to prevent circular references and maintain proper API contracts."
+    applies_to: "**/Endpoints/*.cs"
+    check: |
+      For each C# file in Endpoints directory:
+        - If a Results.Ok(), Results.Created(), or Results.Accepted() call contains a variable that appears to be a raw entity (not ending in 'Request', 'Response', 'Dto', or anonymous object), 
+        - Then raise a warning.
+        - Look for patterns like: Results.Ok(user), Results.Created(..., assetType), etc.
+        - Allow: Results.Ok(userResponse), Results.Ok(new { ... }), Results.Created(..., response)
+    severity: warning
+    examples:
+      bad: |
+        // Returning raw entity
+        return Results.Ok(user);
+        return Results.Created($"/api/users/{user.Id}", assetType);
+      good: |
+        // Returning DTO or anonymous object
+        var response = new UserResponse { Id = user.Id, Name = user.Name };
+        return Results.Ok(response);
+        return Results.Ok(new { user.Id, user.Name });
+        return Results.Created($"/api/users/{user.Id}", userResponse);
+
+  - name: "DTO classes must have XML documentation"
+    description: "All DTO classes should have XML documentation comments to provide clear API documentation."
+    applies_to: "**/Models/DTOs/**/*.cs"
+    check: |
+      For each C# file in Models/DTOs directory:
+        - If a public class does not have a /// <summary> comment above it,
+        - Then raise a warning.
+        - All public properties should also have /// <summary> comments.
+    severity: warning
+    examples:
+      bad: |
+        public class UserResponse
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+      good: |
+        /// <summary>
+        /// Response DTO for user operations
+        /// </summary>
+        public class UserResponse
+        {
+            /// <summary>
+            /// The unique identifier for the user
+            /// </summary>
+            public int Id { get; set; }
+            /// <summary>
+            /// The user's display name
+            /// </summary>
+            public string Name { get; set; }
+        } 

@@ -14,6 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // Enable XML comments
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -21,7 +25,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below."
+        Description = "JWT Authorization header using the Bearer scheme. Enter your token in the text input below. Do not include Bearer at the beginning of your token."
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement

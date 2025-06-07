@@ -18,14 +18,14 @@ public static class AssetTypeEndpoints
                 .Include(at => at.Translations)
                 .ToListAsync();
 
-            return query.Select(at => new
+            return query.Select(at => new AssetTypeListResponse
             {
-                at.Id,
+                Id = at.Id,
                 Name = !string.IsNullOrEmpty(lang) 
                     ? at.Translations.FirstOrDefault(t => t.LanguageCode == lang)?.Name ?? at.DefaultName
                     : at.DefaultName,
-                at.IsAsset,
-                at.IsPhysical
+                IsAsset = at.IsAsset,
+                IsPhysical = at.IsPhysical
             });
         });
 
@@ -45,16 +45,28 @@ public static class AssetTypeEndpoints
                 assetType.Translations.Add(new AssetTypeTranslation
                 {
                     LanguageCode = translation.Key,
-                    Name = translation.Value,
-                    AssetType = assetType,
-                    AssetTypeId = assetType.Id
+                    Name = translation.Value
                 });
             }
 
             db.AssetTypes.Add(assetType);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/asset-types/{assetType.Id}", assetType);
+            var response = new AssetTypeResponse
+            {
+                Id = assetType.Id,
+                DefaultName = assetType.DefaultName,
+                IsAsset = assetType.IsAsset,
+                IsPhysical = assetType.IsPhysical,
+                Translations = assetType.Translations.Select(t => new AssetTypeTranslationResponse
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    LanguageCode = t.LanguageCode
+                }).ToList()
+            };
+
+            return Results.Created($"/api/asset-types/{assetType.Id}", response);
         })
         .RequireAuthorization(policy => policy.RequireRole("Coach", "Admin"));
     }

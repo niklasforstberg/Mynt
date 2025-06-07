@@ -1,0 +1,47 @@
+# API Response and Request Patterns
+
+## DTO Usage Policy
+- **NEVER** return raw entity/model objects directly from API endpoints
+- **ALWAYS** create and use Data Transfer Objects (DTOs) for API requests and responses
+- **ALWAYS** map between entities and DTOs explicitly
+
+## DTO Structure and Placement
+- Place DTOs in `Models/DTOs/{FeatureName}/` directories
+- Use descriptive names: `{EntityName}CreateRequest`, `{EntityName}Response`, `{EntityName}UpdateRequest`
+- Include XML documentation comments for all DTO properties
+- Use `required` keyword for non-nullable properties that must be provided
+
+## API Endpoint Patterns
+```csharp
+// ❌ BAD - Never return raw entities
+return Results.Ok(userEntity);
+return Results.Created($"/api/users/{user.Id}", user);
+
+// ✅ GOOD - Always return DTOs
+var response = new UserResponse
+{
+    Id = user.Id,
+    Name = user.Name,
+    Email = user.Email
+};
+return Results.Ok(response);
+return Results.Created($"/api/users/{user.Id}", response);
+```
+
+## Benefits of This Pattern
+- Prevents circular reference issues in JSON serialization
+- Controls exactly what data is exposed via the API
+- Allows API contract evolution independent of domain models
+- Provides clear documentation of API structure
+- Enables better validation and error handling
+
+## DTO Creation Guidelines
+- Keep DTOs simple and focused on data transfer
+- Don't include business logic in DTOs
+- Use appropriate data types for API consumption (avoid complex objects)
+- Include validation attributes when needed
+- Create separate DTOs for different operations (Create vs Update vs Response)
+
+## Exception Handling
+- When creating DTOs fails due to missing data, provide clear error messages
+- Always validate incoming DTOs before mapping to entities 
