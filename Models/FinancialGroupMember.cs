@@ -7,6 +7,7 @@ namespace Mynt.Models
         public required int UserId { get; set; }
         public required int FinancialGroupId { get; set; }
         public required string Role { get; set; }
+        public required DateTime JoinedAt { get; set; }
 
         public required User User { get; set; }
         public required FinancialGroup FinancialGroup { get; set; }
