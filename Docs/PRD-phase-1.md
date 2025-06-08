@@ -4,7 +4,7 @@ User Account and Authentication
 
 Secure login system.
 
-Optionally allow multiple users (e.g., you and a partner).
+allow multiple users (e.g., you and a partner) in one financialentity.
 
 Asset Types and Input
 
