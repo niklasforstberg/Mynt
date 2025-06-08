@@ -55,7 +55,7 @@ public static class AssetEndpoints
                 AssetTypeId = a.AssetTypeId,
                 AssetTypeName = a.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = a.CreatedAt,
-                CurrentValue = a.AssetValues.FirstOrDefault()?.Value
+                CurrentValue = a.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value
             });
 
             return Results.Ok(response);
@@ -85,7 +85,7 @@ public static class AssetEndpoints
                 AssetTypeId = asset.AssetTypeId,
                 AssetTypeName = asset.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = asset.CreatedAt,
-                CurrentValue = asset.AssetValues.FirstOrDefault()?.Value
+                CurrentValue = asset.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value
             };
 
             return Results.Ok(response);
@@ -123,4 +123,4 @@ public static class AssetEndpoints
             return Results.Ok();
         });
     }
-} 
+}
