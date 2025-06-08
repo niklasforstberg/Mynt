@@ -126,6 +126,7 @@ app.MapAuthEndpoints();
 app.MapUserActivityEndpoints();
 app.MapAssetTypeEndpoints();
 app.MapAssetEndpoints();
+app.MapAssetValueEndpoints();
 
 // Add localization middleware
 app.UseRequestLocalization();
