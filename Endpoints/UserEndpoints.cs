@@ -38,6 +38,6 @@ public static class UserEndpoints
 
             return Results.Ok(response);
         })
-        .RequireAuthorization(policy => policy.RequireRole("Coach", "Admin"));
+        .RequireAuthorization(policy => policy.RequireRole("Admin"));
     }
 } 
