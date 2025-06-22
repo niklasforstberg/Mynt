@@ -20,7 +20,7 @@ public static class AuthEndpoints
         app.MapPost("/api/auth/login", async (LoginDto request, ApplicationDbContext db, IConfiguration config, HttpContext context, IUserActivityService activityService) =>
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            
+
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 return Results.Unauthorized();
@@ -30,7 +30,7 @@ public static class AuthEndpoints
 
             // Log the login activity
             await activityService.LogActivityAsync(
-                user.Id, 
+                user.Id,
                 UserActivityAction.Login,
                 "User logged in successfully"
             );
@@ -61,7 +61,7 @@ public static class AuthEndpoints
             var token = GenerateJwtToken(user, config);
 
             await activityService.LogActivityAsync(
-                user.Id, 
+                user.Id,
                 UserActivityAction.Register,
                 "User registered successfully"
             );
@@ -91,7 +91,7 @@ public static class AuthEndpoints
 
         // Protected endpoints (auth required)
         app.MapGet("/api/auth/me", [Authorize] async (HttpContext context, ApplicationDbContext db) =>
-        {           
+        {
             var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
                 return Results.Unauthorized();
@@ -143,7 +143,7 @@ public static class AuthEndpoints
 
     private static string GenerateJwtToken(User user, IConfiguration config)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+        var key = new SymmetricSecurityKey(Convert.FromBase64String(
             config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found")));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -162,6 +162,8 @@ public static class AuthEndpoints
             signingCredentials: credentials
         );
 
+        Console.WriteLine($"Generated token: {new JwtSecurityTokenHandler().WriteToken(token)}");
+
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-} 
+}

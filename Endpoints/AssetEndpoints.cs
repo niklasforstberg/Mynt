@@ -37,7 +37,8 @@ public static class AssetEndpoints
         group.MapGet("/", async (ApplicationDbContext db, HttpContext context) =>
         {
             var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-
+            Console.WriteLine($"User ID: {userId}");
+            Console.WriteLine($"Assets: {db.Assets.Count()}");
             var assets = await db.Assets
                 .Include(a => a.AssetType)
                 .Include(a => a.FinancialGroup)

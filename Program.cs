@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Mynt.Data;
 using Mynt.Endpoints;
 using Microsoft.Extensions.Localization;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Services.AddSwaggerGen(options =>
     // Enable XML comments
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -60,16 +61,20 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtKey = builder.Configuration["Jwt:Key"];
+        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+        var jwtAudience = builder.Configuration["Jwt:Audience"];
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found")))
+                Convert.FromBase64String(jwtKey))
         };
     });
 
@@ -101,7 +106,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         "de"
         // Add more cultures as needed
     };
-    
+
     options.SetDefaultCulture(supportedCultures[0])
         .AddSupportedCultures(supportedCultures)
         .AddSupportedUICultures(supportedCultures);
@@ -117,16 +122,51 @@ app.UseSwaggerUI();
 // Enable CORS
 app.UseCors("AllowAll");
 
+// Debug middleware to log Authorization header
+// app.Use(async (context, next) =>
+// {
+//     var authHeader = context.Request.Headers.Authorization.ToString();
+//     Console.WriteLine($"Authorization header: '{authHeader}'");
+//     Console.WriteLine($"Authorization header length: {authHeader.Length}");
+//     await next();
+// });
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Register endpoints
-app.MapUserEndpoints();
 app.MapAuthEndpoints();
+app.MapUserEndpoints();
 app.MapUserActivityEndpoints();
 app.MapAssetTypeEndpoints();
 app.MapAssetEndpoints();
 app.MapAssetValueEndpoints();
+
+// Development-only endpoint to generate JWT key
+// if (app.Environment.IsDevelopment())
+// {
+//     app.MapGet("/api/dev/generate-jwt-key", () =>
+//     {
+//         using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+//         var keyBytes = new byte[32]; // 256-bit key
+//         rng.GetBytes(keyBytes);
+//         var base64Key = Convert.ToBase64String(keyBytes);
+
+//         return Results.Ok(new
+//         {
+//             JwtKey = base64Key,
+//             ConfigExample = new
+//             {
+//                 Jwt = new
+//                 {
+//                     Key = base64Key,
+//                     Issuer = "Mynt",
+//                     Audience = "Mynt"
+//                 }
+//             }
+//         });
+//     });
+// }
 
 // Add localization middleware
 app.UseRequestLocalization();
