@@ -30,7 +30,34 @@ public static class AssetEndpoints
             db.Assets.Add(asset);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/assets/{asset.Id}", asset);
+            // Create initial value record if provided
+            if (request.InitialValue.HasValue)
+            {
+                var assetValue = new AssetValue
+                {
+                    AssetId = asset.Id,
+                    Value = request.InitialValue.Value,
+                    RecordedAt = DateTime.UtcNow,
+                    Asset = asset
+                };
+                db.AssetValues.Add(assetValue);
+                await db.SaveChangesAsync();
+            }
+
+            var response = new AssetResponse
+            {
+                Id = asset.Id,
+                Name = asset.Name ?? "",
+                Description = asset.Description,
+                FinancialGroupId = asset.FinancialGroupId,
+                FinancialGroupName = null, // Will be populated if needed
+                AssetTypeId = asset.AssetTypeId,
+                AssetTypeName = null, // Will be populated if needed
+                CreatedAt = asset.CreatedAt,
+                CurrentValue = request.InitialValue
+            };
+
+            return Results.Created($"/api/assets/{asset.Id}", response);
         });
 
         // READ: Get all assets for the current user
