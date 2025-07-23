@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mynt.Data;
 
@@ -11,9 +12,11 @@ using Mynt.Data;
 namespace Mynt.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723131537_Currencies")]
+    partial class Currencies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +39,8 @@ namespace Mynt.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CurrencyCode")
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                    b.Property<int?>("CurrencyId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -56,7 +58,7 @@ namespace Mynt.Migrations
 
                     b.HasIndex("AssetTypeId");
 
-                    b.HasIndex("CurrencyCode");
+                    b.HasIndex("CurrencyId");
 
                     b.HasIndex("FinancialGroupId");
 
@@ -153,7 +155,14 @@ namespace Mynt.Migrations
 
             modelBuilder.Entity("Mynt.Models.Currency", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
@@ -178,7 +187,7 @@ namespace Mynt.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
@@ -202,10 +211,8 @@ namespace Mynt.Migrations
                     b.Property<DateTime?>("EffectiveTo")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FromCurrencyCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                    b.Property<int>("FromCurrencyId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Rate")
                         .HasPrecision(18, 6)
@@ -218,18 +225,16 @@ namespace Mynt.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("ToCurrencyCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                    b.Property<int>("ToCurrencyId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromCurrencyCode");
+                    b.HasIndex("FromCurrencyId");
 
                     b.HasIndex("SetById");
 
-                    b.HasIndex("ToCurrencyCode");
+                    b.HasIndex("ToCurrencyId");
 
                     b.ToTable("CurrencyExchangeRates");
                 });
@@ -410,7 +415,7 @@ namespace Mynt.Migrations
 
                     b.HasOne("Mynt.Models.Currency", "Currency")
                         .WithMany("Assets")
-                        .HasForeignKey("CurrencyCode")
+                        .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Mynt.Models.FinancialGroup", "FinancialGroup")
@@ -469,7 +474,7 @@ namespace Mynt.Migrations
                 {
                     b.HasOne("Mynt.Models.Currency", "FromCurrency")
                         .WithMany("ExchangeRates")
-                        .HasForeignKey("FromCurrencyCode")
+                        .HasForeignKey("FromCurrencyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -480,7 +485,7 @@ namespace Mynt.Migrations
 
                     b.HasOne("Mynt.Models.Currency", "ToCurrency")
                         .WithMany()
-                        .HasForeignKey("ToCurrencyCode")
+                        .HasForeignKey("ToCurrencyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

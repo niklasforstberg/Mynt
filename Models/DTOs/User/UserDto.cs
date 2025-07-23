@@ -7,5 +7,6 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public bool? Invited { get; set; }
     public UserInviterDto? InvitedBy { get; set; }
-    public List<UserFinancialGroupDto> FinancialGroupMemberships { get; set; } = new List<UserFinancialGroupDto>(); 
+    public List<UserFinancialGroupDto> FinancialGroupMemberships { get; set; } = new List<UserFinancialGroupDto>();
+    public UserSettingsResponse? Settings { get; set; }
 }

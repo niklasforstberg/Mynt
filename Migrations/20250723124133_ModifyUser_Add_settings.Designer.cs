@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mynt.Data;
 
@@ -11,9 +12,11 @@ using Mynt.Data;
 namespace Mynt.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723124133_ModifyUser_Add_settings")]
+    partial class ModifyUser_Add_settings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,10 +39,6 @@ namespace Mynt.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CurrencyCode")
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -55,8 +54,6 @@ namespace Mynt.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssetTypeId");
-
-                    b.HasIndex("CurrencyCode");
 
                     b.HasIndex("FinancialGroupId");
 
@@ -149,89 +146,6 @@ namespace Mynt.Migrations
                     b.HasIndex("AssetId");
 
                     b.ToTable("AssetValues");
-                });
-
-            modelBuilder.Entity("Mynt.Models.Currency", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSystemManaged")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Symbol")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("Code");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("Currencies");
-                });
-
-            modelBuilder.Entity("Mynt.Models.CurrencyExchangeRate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EffectiveFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("EffectiveTo")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FromCurrencyCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<decimal>("Rate")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<int?>("SetById")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Source")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ToCurrencyCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FromCurrencyCode");
-
-                    b.HasIndex("SetById");
-
-                    b.HasIndex("ToCurrencyCode");
-
-                    b.ToTable("CurrencyExchangeRates");
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>
@@ -408,11 +322,6 @@ namespace Mynt.Migrations
                         .WithMany()
                         .HasForeignKey("AssetTypeId");
 
-                    b.HasOne("Mynt.Models.Currency", "Currency")
-                        .WithMany("Assets")
-                        .HasForeignKey("CurrencyCode")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Mynt.Models.FinancialGroup", "FinancialGroup")
                         .WithMany("Assets")
                         .HasForeignKey("FinancialGroupId")
@@ -425,8 +334,6 @@ namespace Mynt.Migrations
                         .IsRequired();
 
                     b.Navigation("AssetType");
-
-                    b.Navigation("Currency");
 
                     b.Navigation("FinancialGroup");
 
@@ -453,42 +360,6 @@ namespace Mynt.Migrations
                         .IsRequired();
 
                     b.Navigation("Asset");
-                });
-
-            modelBuilder.Entity("Mynt.Models.Currency", b =>
-                {
-                    b.HasOne("Mynt.Models.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreatedBy");
-                });
-
-            modelBuilder.Entity("Mynt.Models.CurrencyExchangeRate", b =>
-                {
-                    b.HasOne("Mynt.Models.Currency", "FromCurrency")
-                        .WithMany("ExchangeRates")
-                        .HasForeignKey("FromCurrencyCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Mynt.Models.User", "SetBy")
-                        .WithMany()
-                        .HasForeignKey("SetById")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Mynt.Models.Currency", "ToCurrency")
-                        .WithMany()
-                        .HasForeignKey("ToCurrencyCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FromCurrency");
-
-                    b.Navigation("SetBy");
-
-                    b.Navigation("ToCurrency");
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>
@@ -568,13 +439,6 @@ namespace Mynt.Migrations
             modelBuilder.Entity("Mynt.Models.AssetType", b =>
                 {
                     b.Navigation("Translations");
-                });
-
-            modelBuilder.Entity("Mynt.Models.Currency", b =>
-                {
-                    b.Navigation("Assets");
-
-                    b.Navigation("ExchangeRates");
                 });
 
             modelBuilder.Entity("Mynt.Models.FinancialGroup", b =>

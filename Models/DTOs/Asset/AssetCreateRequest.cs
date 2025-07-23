@@ -28,6 +28,12 @@ public class AssetCreateRequest
     public int? AssetTypeId { get; set; }
 
     /// <summary>
+    /// The currency code for this asset
+    /// </summary>
+    [StringLength(3)]
+    public string? CurrencyCode { get; set; }
+
+    /// <summary>
     /// Optional initial value of the asset. If provided, will create an initial AssetValue record.
     /// </summary>
     public decimal? InitialValue { get; set; }
