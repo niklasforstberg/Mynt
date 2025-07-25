@@ -141,6 +141,7 @@ app.MapUserActivityEndpoints();
 app.MapAssetTypeEndpoints();
 app.MapAssetEndpoints();
 app.MapAssetValueEndpoints();
+app.MapCurrencyEndpoints();
 
 // Development-only endpoint to generate JWT key
 // if (app.Environment.IsDevelopment())

@@ -24,7 +24,8 @@ public static class AssetEndpoints
                 UserId = userId,
                 FinancialGroupId = request.FinancialGroupId,
                 AssetTypeId = request.AssetTypeId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CurrencyCode = request.CurrencyCode
             };
 
             db.Assets.Add(asset);
@@ -54,7 +55,8 @@ public static class AssetEndpoints
                 AssetTypeId = asset.AssetTypeId,
                 AssetTypeName = null, // Will be populated if needed
                 CreatedAt = asset.CreatedAt,
-                CurrentValue = request.InitialValue
+                CurrentValue = request.InitialValue,
+                CurrencyCode = asset.CurrencyCode
             };
 
             return Results.Created($"/api/assets/{asset.Id}", response);
@@ -83,7 +85,8 @@ public static class AssetEndpoints
                 AssetTypeId = a.AssetTypeId,
                 AssetTypeName = a.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = a.CreatedAt,
-                CurrentValue = a.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value
+                CurrentValue = a.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value,
+                CurrencyCode = a.CurrencyCode
             });
 
             return Results.Ok(response);
@@ -113,7 +116,8 @@ public static class AssetEndpoints
                 AssetTypeId = asset.AssetTypeId,
                 AssetTypeName = asset.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
                 CreatedAt = asset.CreatedAt,
-                CurrentValue = asset.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value
+                CurrentValue = asset.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value,
+                CurrencyCode = asset.CurrencyCode
             };
 
             return Results.Ok(response);
@@ -132,9 +136,32 @@ public static class AssetEndpoints
             asset.Description = request.Description;
             asset.FinancialGroupId = request.FinancialGroupId;
             asset.AssetTypeId = request.AssetTypeId;
+            asset.CurrencyCode = request.CurrencyCode;
 
             await db.SaveChangesAsync();
-            return Results.Ok(asset);
+
+            // Reload the asset with includes to populate the response DTO
+            var updatedAsset = await db.Assets
+                .Include(a => a.AssetType)
+                .Include(a => a.FinancialGroup)
+                .Include(a => a.AssetValues.OrderByDescending(av => av.RecordedAt).Take(1))
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            var response = new AssetResponse
+            {
+                Id = updatedAsset!.Id,
+                Name = updatedAsset.Name ?? "",
+                Description = updatedAsset.Description,
+                FinancialGroupId = updatedAsset.FinancialGroupId,
+                FinancialGroupName = updatedAsset.FinancialGroup?.Name,
+                AssetTypeId = updatedAsset.AssetTypeId,
+                AssetTypeName = updatedAsset.AssetType?.Translations.FirstOrDefault(t => t.LanguageCode == "en")?.Name,
+                CreatedAt = updatedAsset.CreatedAt,
+                CurrentValue = updatedAsset.AssetValues.OrderByDescending(av => av.RecordedAt).FirstOrDefault()?.Value,
+                CurrencyCode = updatedAsset.CurrencyCode
+            };
+
+            return Results.Ok(response);
         });
 
         // DELETE: Delete an asset
