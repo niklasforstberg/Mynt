@@ -20,7 +20,7 @@ public static class AssetValueEndpoints
             // Verify the user owns the asset
             var asset = await db.Assets
                 .FirstOrDefaultAsync(a => a.Id == request.AssetId && a.UserId == userId);
-            
+
             if (asset == null)
                 return Results.BadRequest("Asset not found or you don't have permission to add values to it.");
 
@@ -28,7 +28,7 @@ public static class AssetValueEndpoints
             {
                 AssetId = request.AssetId,
                 Value = request.Value,
-                RecordedAt = request.RecordedAt,
+                RecordedAt = DateTime.UtcNow,
                 Asset = asset
             };
 
@@ -110,7 +110,7 @@ public static class AssetValueEndpoints
             var assetValue = await db.AssetValues
                 .Include(av => av.Asset)
                 .FirstOrDefaultAsync(av => av.Id == id && av.Asset.UserId == userId);
-            
+
             if (assetValue == null)
                 return Results.NotFound();
 
@@ -139,17 +139,17 @@ public static class AssetValueEndpoints
             var assetValue = await db.AssetValues
                 .Include(av => av.Asset)
                 .FirstOrDefaultAsync(av => av.Id == id && av.Asset.UserId == userId);
-            
+
             if (assetValue == null)
                 return Results.NotFound();
 
             db.AssetValues.Remove(assetValue);
             await db.SaveChangesAsync();
-            
+
             return Results.Ok();
         });
 
-        // Additional endpoint: Get asset value history for a specific asset
+        // Get asset value history for a specific asset
         group.MapGet("/asset/{assetId}/history", async (int assetId, ApplicationDbContext db, HttpContext context) =>
         {
             var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
@@ -157,7 +157,7 @@ public static class AssetValueEndpoints
             // Verify the user owns the asset
             var asset = await db.Assets
                 .FirstOrDefaultAsync(a => a.Id == assetId && a.UserId == userId);
-            
+
             if (asset == null)
                 return Results.NotFound("Asset not found or you don't have permission to view its values.");
 
@@ -178,4 +178,4 @@ public static class AssetValueEndpoints
             return Results.Ok(response);
         });
     }
-} 
+}
