@@ -20,6 +20,7 @@ public static class CurrencyEndpoints
                     Code = c.Code,
                     Name = c.Name,
                     Symbol = c.Symbol,
+                    SymbolPosition = c.SymbolPosition,
                     IsSystemManaged = c.IsSystemManaged,
                     IsActive = c.IsActive
                 })
@@ -43,6 +44,7 @@ public static class CurrencyEndpoints
                 Code = currency.Code,
                 Name = currency.Name,
                 Symbol = currency.Symbol,
+                SymbolPosition = currency.SymbolPosition,
                 IsSystemManaged = currency.IsSystemManaged,
                 IsActive = currency.IsActive
             };
@@ -74,6 +76,7 @@ public static class CurrencyEndpoints
                 Code = request.Code.ToUpper(),
                 Name = request.Name,
                 Symbol = request.Symbol,
+                SymbolPosition = request.SymbolPosition,
                 IsSystemManaged = false,
                 CreatedById = user.Id,
                 IsActive = true
@@ -87,6 +90,7 @@ public static class CurrencyEndpoints
                 Code = currency.Code,
                 Name = currency.Name,
                 Symbol = currency.Symbol,
+                SymbolPosition = currency.SymbolPosition,
                 IsSystemManaged = currency.IsSystemManaged,
                 IsActive = currency.IsActive
             };

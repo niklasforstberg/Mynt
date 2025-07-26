@@ -21,6 +21,11 @@ namespace Mynt.Models.DTOs.Currency
         public string? Symbol { get; set; }
 
         /// <summary>
+        /// Position of the symbol relative to the value
+        /// </summary>
+        public SymbolPosition SymbolPosition { get; set; }
+
+        /// <summary>
         /// Whether this is a system-managed currency
         /// </summary>
         public bool IsSystemManaged { get; set; }

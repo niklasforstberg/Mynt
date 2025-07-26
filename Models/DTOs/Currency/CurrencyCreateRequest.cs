@@ -26,5 +26,10 @@ namespace Mynt.Models.DTOs.Currency
         /// </summary>
         [StringLength(10)]
         public string? Symbol { get; set; }
+
+        /// <summary>
+        /// Position of the symbol relative to the value
+        /// </summary>
+        public SymbolPosition SymbolPosition { get; set; } = SymbolPosition.Before;
     }
 }
