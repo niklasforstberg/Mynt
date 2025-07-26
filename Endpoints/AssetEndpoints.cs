@@ -177,5 +177,36 @@ public static class AssetEndpoints
             await db.SaveChangesAsync();
             return Results.Ok();
         });
+
+        // GET: Get asset summary for the current user
+        group.MapGet("/summary", async (ApplicationDbContext db, HttpContext context) =>
+        {
+            var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+
+            var assets = await db.Assets
+                .Include(a => a.AssetValues.OrderByDescending(av => av.RecordedAt).Take(1))
+                .Where(a => a.UserId == userId)
+                .ToListAsync();
+
+            var totalValue = assets
+                .Select(a => a.AssetValues.FirstOrDefault()?.Value ?? 0)
+                .Sum();
+
+            var assetCount = assets.Count;
+            var assetsWithValues = assets.Count(a => a.AssetValues.Any());
+
+            var summary = new AssetSummaryResponse
+            {
+                TotalValue = totalValue,
+                AssetCount = assetCount,
+                AssetsWithValues = assetsWithValues,
+                LastUpdated = assets
+                    .SelectMany(a => a.AssetValues)
+                    .OrderByDescending(av => av.RecordedAt)
+                    .FirstOrDefault()?.RecordedAt
+            };
+
+            return Results.Ok(summary);
+        });
     }
 }
