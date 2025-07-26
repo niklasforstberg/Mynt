@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Mynt.Data;
 using Mynt.Models.DTOs.Currency;
 using Mynt.Models.Enums;
+using Mynt.Services;
 
 namespace Mynt.Endpoints;
 
@@ -194,7 +195,7 @@ public static class CurrencyEndpoints
         .RequireAuthorization();
 
         // Convert currency
-        app.MapPost("/api/currencies/convert", async (CurrencyConversionRequest request, ApplicationDbContext db) =>
+        app.MapPost("/api/currencies/convert", async (CurrencyConversionRequest request, ApplicationDbContext db, ICurrencyConversionService conversionService) =>
         {
             if (request.FromCurrencyCode.ToUpper() == request.ToCurrencyCode.ToUpper())
             {
@@ -208,84 +209,19 @@ public static class CurrencyEndpoints
                 });
             }
 
-            var fromCurrency = request.FromCurrencyCode.ToUpper();
-            var toCurrency = request.ToCurrencyCode.ToUpper();
+            var convertedAmount = await conversionService.ConvertCurrencyAsync(
+                request.Amount,
+                request.FromCurrencyCode,
+                request.ToCurrencyCode);
 
-            // Try direct rate first
-            var directRate = await db.CurrencyExchangeRates
-                .Where(r => r.FromCurrencyCode == fromCurrency
-                           && r.ToCurrencyCode == toCurrency
-                           && r.EffectiveTo == null)
-                .OrderByDescending(r => r.EffectiveFrom)
-                .FirstOrDefaultAsync();
-
-            if (directRate != null)
+            if (convertedAmount.HasValue)
             {
-                var result = request.Amount * directRate.Rate;
                 return Results.Ok(new
                 {
                     originalAmount = request.Amount,
-                    convertedAmount = result,
-                    fromCurrencyCode = fromCurrency,
-                    toCurrencyCode = toCurrency,
-                    rate = directRate.Rate,
-                    conversionType = "direct"
-                });
-            }
-
-            // Try reverse rate
-            var reverseRate = await db.CurrencyExchangeRates
-                .Where(r => r.FromCurrencyCode == toCurrency
-                           && r.ToCurrencyCode == fromCurrency
-                           && r.EffectiveTo == null)
-                .OrderByDescending(r => r.EffectiveFrom)
-                .FirstOrDefaultAsync();
-
-            if (reverseRate != null)
-            {
-                var convertedAmount = request.Amount / reverseRate.Rate;
-                return Results.Ok(new
-                {
-                    originalAmount = request.Amount,
-                    convertedAmount = convertedAmount,
-                    fromCurrencyCode = fromCurrency,
-                    toCurrencyCode = toCurrency,
-                    rate = 1.0m / reverseRate.Rate,
-                    conversionType = "reverse"
-                });
-            }
-
-            // Cross-currency conversion using EUR as base
-            var eurToFromRate = await db.CurrencyExchangeRates
-                .Where(r => r.FromCurrencyCode == "EUR"
-                           && r.ToCurrencyCode == fromCurrency
-                           && r.EffectiveTo == null)
-                .OrderByDescending(r => r.EffectiveFrom)
-                .FirstOrDefaultAsync();
-
-            var eurToToRate = await db.CurrencyExchangeRates
-                .Where(r => r.FromCurrencyCode == "EUR"
-                           && r.ToCurrencyCode == toCurrency
-                           && r.EffectiveTo == null)
-                .OrderByDescending(r => r.EffectiveFrom)
-                .FirstOrDefaultAsync();
-
-            if (eurToFromRate != null && eurToToRate != null)
-            {
-                // Convert: fromCurrency → EUR → toCurrency
-                // Formula: amount * (EUR→toCurrency) / (EUR→fromCurrency)
-                var crossRate = eurToToRate.Rate / eurToFromRate.Rate;
-                var convertedAmount = request.Amount * crossRate;
-
-                return Results.Ok(new
-                {
-                    originalAmount = request.Amount,
-                    convertedAmount = convertedAmount,
-                    fromCurrencyCode = fromCurrency,
-                    toCurrencyCode = toCurrency,
-                    rate = crossRate,
-                    conversionType = "cross",
-                    baseCurrency = "EUR"
+                    convertedAmount = convertedAmount.Value,
+                    fromCurrencyCode = request.FromCurrencyCode.ToUpper(),
+                    toCurrencyCode = request.ToCurrencyCode.ToUpper()
                 });
             }
 

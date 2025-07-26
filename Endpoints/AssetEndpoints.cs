@@ -3,6 +3,7 @@ using Mynt.Data;
 using Mynt.Models;
 using Mynt.Models.DTOs.Asset;
 using System.Security.Claims;
+using Mynt.Services;
 
 namespace Mynt.Endpoints;
 
@@ -179,31 +180,52 @@ public static class AssetEndpoints
         });
 
         // GET: Get asset summary for the current user
-        group.MapGet("/summary", async (ApplicationDbContext db, HttpContext context) =>
+        group.MapGet("/summary", async (ApplicationDbContext db, HttpContext context, ICurrencyConversionService conversionService) =>
         {
             var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+
+            // Get user's preferred currency
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var preferredCurrency = user?.GetPreferredCurrency() ?? "USD";
 
             var assets = await db.Assets
                 .Include(a => a.AssetValues.OrderByDescending(av => av.RecordedAt).Take(1))
                 .Where(a => a.UserId == userId)
                 .ToListAsync();
 
-            var totalValue = assets
-                .Select(a => a.AssetValues.FirstOrDefault()?.Value ?? 0)
-                .Sum();
+            var totalValue = 0m;
+            var assetsWithValues = 0;
 
-            var assetCount = assets.Count;
-            var assetsWithValues = assets.Count(a => a.AssetValues.Any());
+            foreach (var asset in assets)
+            {
+                var latestValue = asset.AssetValues.FirstOrDefault();
+                if (latestValue != null)
+                {
+                    assetsWithValues++;
+
+                    var assetCurrency = asset.CurrencyCode ?? "USD";
+                    var convertedValue = await conversionService.ConvertCurrencyAsync(
+                        latestValue.Value,
+                        assetCurrency,
+                        preferredCurrency);
+
+                    if (convertedValue.HasValue)
+                    {
+                        totalValue += convertedValue.Value;
+                    }
+                }
+            }
 
             var summary = new AssetSummaryResponse
             {
                 TotalValue = totalValue,
-                AssetCount = assetCount,
+                AssetCount = assets.Count,
                 AssetsWithValues = assetsWithValues,
                 LastUpdated = assets
                     .SelectMany(a => a.AssetValues)
                     .OrderByDescending(av => av.RecordedAt)
-                    .FirstOrDefault()?.RecordedAt
+                    .FirstOrDefault()?.RecordedAt,
+                PreferredCurrency = preferredCurrency
             };
 
             return Results.Ok(summary);
