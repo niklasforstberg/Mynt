@@ -49,6 +49,23 @@ public class ExchangeRateUpdateService : BackgroundService
 
     private async Task UpdateExchangeRatesAsync()
     {
+        using var scope = _serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        // Check if we already updated today
+        var today = DateTime.UtcNow.Date;
+        var lastUpdate = await dbContext.CurrencyExchangeRates
+            .Where(r => r.Source == "ExchangeRatesAPI")
+            .OrderByDescending(r => r.EffectiveFrom)
+            .Select(r => r.EffectiveFrom.Date)
+            .FirstOrDefaultAsync();
+
+        if (lastUpdate == today)
+        {
+            _logger.LogInformation("Exchange rates already updated today ({Date}), skipping update", today);
+            return;
+        }
+
         var accessKey = _configuration["ExchangeRatesApi:AccessKey"];
         if (string.IsNullOrEmpty(accessKey))
         {
@@ -67,9 +84,6 @@ public class ExchangeRateUpdateService : BackgroundService
             _logger.LogError("Failed to fetch exchange rates from API");
             return;
         }
-
-        using var scope = _serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // Get all active currencies from our database
         var currencies = await dbContext.Currencies
@@ -115,7 +129,7 @@ public class ExchangeRateUpdateService : BackgroundService
         dbContext.CurrencyExchangeRates.AddRange(newRates);
         await dbContext.SaveChangesAsync();
 
-        _logger.LogInformation("Updated {Count} exchange rates from {BaseCurrency}",
-            newRates.Count, baseCurrency);
+        _logger.LogInformation("Updated {Count} exchange rates from {BaseCurrency} on {Date}",
+            newRates.Count, baseCurrency, today);
     }
 }
