@@ -46,7 +46,7 @@ public static class UserEndpoints
 
         app.MapGet("/api/users/me", async (ApplicationDbContext db, HttpContext context) =>
         {
-            var userEmail = context.User.Identity?.Name;
+            var userEmail = context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(userEmail))
                 return Results.Unauthorized();
 
@@ -85,7 +85,7 @@ public static class UserEndpoints
 
         app.MapPut("/api/users/settings", async (UserSettingsRequest request, ApplicationDbContext db, HttpContext context) =>
         {
-            var userEmail = context.User.Identity?.Name;
+            var userEmail = context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(userEmail))
                 return Results.Unauthorized();
 
@@ -107,7 +107,7 @@ public static class UserEndpoints
 
         app.MapGet("/api/users/settings", async (ApplicationDbContext db, HttpContext context) =>
         {
-            var userEmail = context.User.Identity?.Name;
+            var userEmail = context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(userEmail))
                 return Results.Unauthorized();
 
