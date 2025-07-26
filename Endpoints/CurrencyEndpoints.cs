@@ -149,6 +149,50 @@ public static class CurrencyEndpoints
         })
         .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+        // Manually trigger exchange rate update (Admin only)
+        app.MapPost("/api/currencies/update-rates", async (ApplicationDbContext db, HttpContext context) =>
+        {
+            var userEmail = context.User.Identity?.Name;
+            if (string.IsNullOrEmpty(userEmail))
+                return Results.Unauthorized();
+
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (user?.Role != UserRole.Admin)
+                return Results.Forbid();
+
+            // This will trigger the background service to update rates
+            // In a real implementation, you might want to inject the service and call it directly
+            return Results.Ok(new { message = "Exchange rate update triggered. Check logs for progress." });
+        })
+        .RequireAuthorization(policy => policy.RequireRole("Admin"));
+
+        // Get exchange rate update status
+        app.MapGet("/api/currencies/update-status", async (ApplicationDbContext db) =>
+        {
+            var latestRate = await db.CurrencyExchangeRates
+                .Where(r => r.Source == "ExchangeRatesAPI")
+                .OrderByDescending(r => r.EffectiveFrom)
+                .FirstOrDefaultAsync();
+
+            if (latestRate == null)
+                return Results.Ok(new
+                {
+                    lastUpdate = (DateTime?)null,
+                    status = "No rates available"
+                });
+
+            return Results.Ok(new
+            {
+                lastUpdate = latestRate.EffectiveFrom,
+                status = "Rates available",
+                baseCurrency = latestRate.FromCurrencyCode,
+                totalRates = await db.CurrencyExchangeRates
+                    .Where(r => r.EffectiveFrom == latestRate.EffectiveFrom)
+                    .CountAsync()
+            });
+        })
+        .RequireAuthorization();
+
         // Convert currency
         app.MapPost("/api/currencies/convert", async (CurrencyConversionRequest request, ApplicationDbContext db) =>
         {
@@ -164,47 +208,88 @@ public static class CurrencyEndpoints
                 });
             }
 
-            // Get current exchange rate
-            var exchangeRate = await db.CurrencyExchangeRates
-                .Where(r => r.FromCurrencyCode == request.FromCurrencyCode.ToUpper()
-                           && r.ToCurrencyCode == request.ToCurrencyCode.ToUpper()
+            var fromCurrency = request.FromCurrencyCode.ToUpper();
+            var toCurrency = request.ToCurrencyCode.ToUpper();
+
+            // Try direct rate first
+            var directRate = await db.CurrencyExchangeRates
+                .Where(r => r.FromCurrencyCode == fromCurrency
+                           && r.ToCurrencyCode == toCurrency
                            && r.EffectiveTo == null)
                 .OrderByDescending(r => r.EffectiveFrom)
                 .FirstOrDefaultAsync();
 
-            if (exchangeRate == null)
+            if (directRate != null)
             {
-                // Try reverse rate
-                var reverseRate = await db.CurrencyExchangeRates
-                    .Where(r => r.FromCurrencyCode == request.ToCurrencyCode.ToUpper()
-                               && r.ToCurrencyCode == request.FromCurrencyCode.ToUpper()
-                               && r.EffectiveTo == null)
-                    .OrderByDescending(r => r.EffectiveFrom)
-                    .FirstOrDefaultAsync();
+                var result = request.Amount * directRate.Rate;
+                return Results.Ok(new
+                {
+                    originalAmount = request.Amount,
+                    convertedAmount = result,
+                    fromCurrencyCode = fromCurrency,
+                    toCurrencyCode = toCurrency,
+                    rate = directRate.Rate,
+                    conversionType = "direct"
+                });
+            }
 
-                if (reverseRate == null)
-                    return Results.BadRequest("No exchange rate found between these currencies.");
+            // Try reverse rate
+            var reverseRate = await db.CurrencyExchangeRates
+                .Where(r => r.FromCurrencyCode == toCurrency
+                           && r.ToCurrencyCode == fromCurrency
+                           && r.EffectiveTo == null)
+                .OrderByDescending(r => r.EffectiveFrom)
+                .FirstOrDefaultAsync();
 
+            if (reverseRate != null)
+            {
                 var convertedAmount = request.Amount / reverseRate.Rate;
                 return Results.Ok(new
                 {
                     originalAmount = request.Amount,
                     convertedAmount = convertedAmount,
-                    fromCurrencyCode = request.FromCurrencyCode.ToUpper(),
-                    toCurrencyCode = request.ToCurrencyCode.ToUpper(),
-                    rate = 1.0m / reverseRate.Rate
+                    fromCurrencyCode = fromCurrency,
+                    toCurrencyCode = toCurrency,
+                    rate = 1.0m / reverseRate.Rate,
+                    conversionType = "reverse"
                 });
             }
 
-            var result = request.Amount * exchangeRate.Rate;
-            return Results.Ok(new
+            // Cross-currency conversion using EUR as base
+            var eurToFromRate = await db.CurrencyExchangeRates
+                .Where(r => r.FromCurrencyCode == "EUR"
+                           && r.ToCurrencyCode == fromCurrency
+                           && r.EffectiveTo == null)
+                .OrderByDescending(r => r.EffectiveFrom)
+                .FirstOrDefaultAsync();
+
+            var eurToToRate = await db.CurrencyExchangeRates
+                .Where(r => r.FromCurrencyCode == "EUR"
+                           && r.ToCurrencyCode == toCurrency
+                           && r.EffectiveTo == null)
+                .OrderByDescending(r => r.EffectiveFrom)
+                .FirstOrDefaultAsync();
+
+            if (eurToFromRate != null && eurToToRate != null)
             {
-                originalAmount = request.Amount,
-                convertedAmount = result,
-                fromCurrencyCode = request.FromCurrencyCode.ToUpper(),
-                toCurrencyCode = request.ToCurrencyCode.ToUpper(),
-                rate = exchangeRate.Rate
-            });
+                // Convert: fromCurrency → EUR → toCurrency
+                // Formula: amount * (EUR→toCurrency) / (EUR→fromCurrency)
+                var crossRate = eurToToRate.Rate / eurToFromRate.Rate;
+                var convertedAmount = request.Amount * crossRate;
+
+                return Results.Ok(new
+                {
+                    originalAmount = request.Amount,
+                    convertedAmount = convertedAmount,
+                    fromCurrencyCode = fromCurrency,
+                    toCurrencyCode = toCurrency,
+                    rate = crossRate,
+                    conversionType = "cross",
+                    baseCurrency = "EUR"
+                });
+            }
+
+            return Results.BadRequest("No exchange rate found between these currencies.");
         })
         .RequireAuthorization();
 

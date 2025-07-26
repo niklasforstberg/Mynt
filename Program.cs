@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Mynt.Data;
 using Mynt.Endpoints;
+using Mynt.Services;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
@@ -93,6 +94,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddScoped<IUserActivityService, UserActivityService>();
+
+// Add background services
+builder.Services.AddHostedService<ExchangeRateUpdateService>();
 
 // Add localization services
 builder.Services.AddLocalization();
