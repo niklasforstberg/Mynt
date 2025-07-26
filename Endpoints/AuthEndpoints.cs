@@ -139,6 +139,17 @@ public static class AuthEndpoints
             return Results.Ok("Admin user created successfully");
         })
         .RequireAuthorization(policy => policy.RequireRole("Admin"));
+
+        // Development-only endpoint to get JWT for user ID 1
+        app.MapGet("/api/auth/dev/login", async (ApplicationDbContext db, IConfiguration config) =>
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == 1);
+            if (user == null)
+                return Results.NotFound("User with ID 1 not found");
+
+            var token = GenerateJwtToken(user, config);
+            return Results.Ok(new { Token = token });
+        });
     }
 
     private static string GenerateJwtToken(User user, IConfiguration config)
