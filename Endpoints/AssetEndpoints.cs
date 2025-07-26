@@ -203,7 +203,7 @@ public static class AssetEndpoints
                 {
                     assetsWithValues++;
 
-                    var assetCurrency = asset.CurrencyCode ?? "USD";
+                    var assetCurrency = asset.CurrencyCode ?? preferredCurrency;
                     var convertedValue = await conversionService.ConvertCurrencyAsync(
                         latestValue.Value,
                         assetCurrency,
@@ -225,7 +225,7 @@ public static class AssetEndpoints
                     .SelectMany(a => a.AssetValues)
                     .OrderByDescending(av => av.RecordedAt)
                     .FirstOrDefault()?.RecordedAt,
-                PreferredCurrency = preferredCurrency
+                CurrencyCode = preferredCurrency
             };
 
             return Results.Ok(summary);

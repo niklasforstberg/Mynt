@@ -28,5 +28,5 @@ public class AssetSummaryResponse
     /// <summary>
     /// Currency code for the total value
     /// </summary>
-    public required string PreferredCurrency { get; set; }
+    public required string CurrencyCode { get; set; }
 }
