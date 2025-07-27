@@ -95,6 +95,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IUserActivityService, UserActivityService>();
 builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
+builder.Services.AddScoped<ISnapshotService, SnapshotService>();
+builder.Services.AddHostedService<SnapshotBackgroundService>();
 
 // Add background services
 builder.Services.AddHostedService<ExchangeRateUpdateService>();
