@@ -127,15 +127,6 @@ app.UseSwaggerUI();
 // Enable CORS
 app.UseCors("AllowAll");
 
-// Debug middleware to log Authorization header
-// app.Use(async (context, next) =>
-// {
-//     var authHeader = context.Request.Headers.Authorization.ToString();
-//     Console.WriteLine($"Authorization header: '{authHeader}'");
-//     Console.WriteLine($"Authorization header length: {authHeader.Length}");
-//     await next();
-// });
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -147,32 +138,6 @@ app.MapAssetTypeEndpoints();
 app.MapAssetEndpoints();
 app.MapAssetValueEndpoints();
 app.MapCurrencyEndpoints();
-
-// Development-only endpoint to generate JWT key
-// if (app.Environment.IsDevelopment())
-// {
-//     app.MapGet("/api/dev/generate-jwt-key", () =>
-//     {
-//         using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-//         var keyBytes = new byte[32]; // 256-bit key
-//         rng.GetBytes(keyBytes);
-//         var base64Key = Convert.ToBase64String(keyBytes);
-
-//         return Results.Ok(new
-//         {
-//             JwtKey = base64Key,
-//             ConfigExample = new
-//             {
-//                 Jwt = new
-//                 {
-//                     Key = base64Key,
-//                     Issuer = "Mynt",
-//                     Audience = "Mynt"
-//                 }
-//             }
-//         });
-//     });
-// }
 
 // Add localization middleware
 app.UseRequestLocalization();
