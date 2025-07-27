@@ -195,20 +195,25 @@ public static class AssetEndpoints
             var preferredCurrency = user?.GetPreferredCurrency() ?? "USD";
 
             var assets = await db.Assets
+                .Include(a => a.AssetType)
                 .Include(a => a.AssetValues.OrderByDescending(av => av.RecordedAt).Take(1))
                 .Where(a => a.UserId == userId)
                 .ToListAsync();
 
-            var totalValue = 0m;
-            var assetsWithValues = 0;
+            var assetSummary = 0m;
+            var assetCount = 0;
+            var debtSummary = 0m;
+            var debtCount = 0;
+            var lastUpdated = assets
+                .SelectMany(a => a.AssetValues)
+                .OrderByDescending(av => av.RecordedAt)
+                .FirstOrDefault()?.RecordedAt;
 
             foreach (var asset in assets)
             {
                 var latestValue = asset.AssetValues.FirstOrDefault();
                 if (latestValue != null)
                 {
-                    assetsWithValues++;
-
                     var assetCurrency = asset.CurrencyCode ?? preferredCurrency;
                     var convertedValue = await conversionService.ConvertCurrencyAsync(
                         latestValue.Value,
@@ -217,24 +222,56 @@ public static class AssetEndpoints
 
                     if (convertedValue.HasValue)
                     {
-                        totalValue += convertedValue.Value;
+                        // Determine if this is an asset or debt based on AssetType
+                        var isAsset = asset.AssetType?.IsAsset ?? true; // Default to asset if no type
+
+                        if (isAsset)
+                        {
+                            assetSummary += convertedValue.Value;
+                            assetCount++;
+                        }
+                        else
+                        {
+                            debtSummary += convertedValue.Value;
+                            debtCount++;
+                        }
                     }
+                }
+                else
+                {
+                    // Count assets without values
+                    var isAsset = asset.AssetType?.IsAsset ?? true;
+                    if (isAsset)
+                        assetCount++;
+                    else
+                        debtCount++;
                 }
             }
 
+            var totalSummary = assetSummary - debtSummary;
+
             var summary = new AssetSummaryResponse
             {
-                TotalValue = totalValue,
-                AssetCount = assets.Count,
-                AssetsWithValues = assetsWithValues,
-                LastUpdated = assets
-                    .SelectMany(a => a.AssetValues)
-                    .OrderByDescending(av => av.RecordedAt)
-                    .FirstOrDefault()?.RecordedAt,
+                AssetSummary = assetSummary,
+                AssetCount = assetCount,
+                DebtSummary = debtSummary,
+                DebtCount = debtCount,
+                TotalSummary = totalSummary,
+                LastUpdated = lastUpdated,
                 CurrencyCode = preferredCurrency
             };
 
             return Results.Ok(summary);
         });
+
+        // GET: Get historical snapshots for the current user
+        group.MapGet("/snapshots", async (ISnapshotService snapshotService, HttpContext context, DateTime? fromDate, DateTime? toDate) =>
+        {
+            var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            var snapshots = await snapshotService.GetUserSnapshotsAsync(userId, fromDate, toDate);
+            return Results.Ok(snapshots);
+        });
+
+
     }
 }

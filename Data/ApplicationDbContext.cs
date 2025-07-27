@@ -21,6 +21,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<AssetTypeTranslation> AssetTypeTranslations { get; set; } = null!;
     public DbSet<Currency> Currencies { get; set; } = null!;
     public DbSet<CurrencyExchangeRate> CurrencyExchangeRates { get; set; } = null!;
+    public DbSet<PortfolioSnapshot> PortfolioSnapshots { get; set; } = null!;
+    public DbSet<SnapshotConfiguration> SnapshotConfigurations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -20,6 +20,7 @@ namespace Mynt.Models
 
         public ICollection<FinancialGroupMember> FinancialGroupMemberships { get; set; } = [];
         public ICollection<Asset> Assets { get; set; } = [];
+        public SnapshotConfiguration? SnapshotConfiguration { get; set; }
 
         /// <summary>
         /// Gets the user's preferred currency code from settings
