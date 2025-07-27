@@ -13,17 +13,22 @@ public class AssetTypeCreateRequest
     /// </summary>
     /// <example>Cash</example>
     public required string DefaultName { get; set; }
-    
+
     /// <summary>
     /// Whether this represents an asset (true) or liability (false)
     /// </summary>
     public bool IsAsset { get; set; } = true;
-    
+
     /// <summary>
     /// Whether this is a physical asset
     /// </summary>
     public bool IsPhysical { get; set; } = false;
-    
+
+    /// <summary>
+    /// Whether this asset type is easily convertible to cash
+    /// </summary>
+    public bool IsLiquid { get; set; } = true;
+
     /// <summary>
     /// Translations for different languages. Key is language code (en, es, fr, de), value is translated name.
     /// </summary>
@@ -36,4 +41,4 @@ public class AssetTypeCreateRequest
     /// }
     /// </example>
     public Dictionary<string, string> Translations { get; set; } = new();
-} 
+}

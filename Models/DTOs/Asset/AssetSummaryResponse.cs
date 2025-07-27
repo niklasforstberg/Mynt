@@ -31,6 +31,16 @@ public class AssetSummaryResponse
     public required decimal TotalSummary { get; set; }
 
     /// <summary>
+    /// Total value of liquid assets (easily convertible to cash)
+    /// </summary>
+    public required decimal LiquidAssetSummary { get; set; }
+
+    /// <summary>
+    /// Liquid net worth (liquid assets - debts)
+    /// </summary>
+    public required decimal LiquidNetWorth { get; set; }
+
+    /// <summary>
     /// Timestamp of the most recent asset value update
     /// </summary>
     public DateTime? LastUpdated { get; set; }

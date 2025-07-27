@@ -31,7 +31,8 @@ public static class AssetTypeEndpoints
                     ? at.Translations.FirstOrDefault(t => t.LanguageCode == lang)?.Name ?? at.DefaultName
                     : at.DefaultName,
                 IsAsset = at.IsAsset,
-                IsPhysical = at.IsPhysical
+                IsPhysical = at.IsPhysical,
+                IsLiquid = at.IsLiquid
             });
         });
 
@@ -43,6 +44,7 @@ public static class AssetTypeEndpoints
                 DefaultName = request.DefaultName,
                 IsAsset = request.IsAsset,
                 IsPhysical = request.IsPhysical,
+                IsLiquid = request.IsLiquid,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -66,6 +68,7 @@ public static class AssetTypeEndpoints
                 DefaultName = assetType.DefaultName,
                 IsAsset = assetType.IsAsset,
                 IsPhysical = assetType.IsPhysical,
+                IsLiquid = assetType.IsLiquid,
                 CreatedAt = assetType.CreatedAt,
                 UpdatedAt = assetType.UpdatedAt,
                 Translations = assetType.Translations.Select(t => new AssetTypeTranslationResponse
@@ -99,6 +102,9 @@ public static class AssetTypeEndpoints
 
             if (request.IsPhysical.HasValue)
                 assetType.IsPhysical = request.IsPhysical.Value;
+
+            if (request.IsLiquid.HasValue)
+                assetType.IsLiquid = request.IsLiquid.Value;
 
             // Update timestamp
             assetType.UpdatedAt = DateTime.UtcNow;
@@ -140,6 +146,7 @@ public static class AssetTypeEndpoints
                 DefaultName = assetType.DefaultName,
                 IsAsset = assetType.IsAsset,
                 IsPhysical = assetType.IsPhysical,
+                IsLiquid = assetType.IsLiquid,
                 CreatedAt = assetType.CreatedAt,
                 UpdatedAt = assetType.UpdatedAt,
                 Translations = assetType.Translations.Select(t => new AssetTypeTranslationResponse
@@ -170,6 +177,7 @@ public static class AssetTypeEndpoints
                 DefaultName = assetType.DefaultName,
                 IsAsset = assetType.IsAsset,
                 IsPhysical = assetType.IsPhysical,
+                IsLiquid = assetType.IsLiquid,
                 CreatedAt = assetType.CreatedAt,
                 UpdatedAt = assetType.UpdatedAt,
                 Translations = assetType.Translations.Select(t => new AssetTypeTranslationResponse

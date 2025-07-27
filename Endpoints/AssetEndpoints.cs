@@ -204,6 +204,7 @@ public static class AssetEndpoints
             var assetCount = 0;
             var debtSummary = 0m;
             var debtCount = 0;
+            var liquidAssetSummary = 0m;
             var lastUpdated = assets
                 .SelectMany(a => a.AssetValues)
                 .OrderByDescending(av => av.RecordedAt)
@@ -229,6 +230,13 @@ public static class AssetEndpoints
                         {
                             assetSummary += convertedValue.Value;
                             assetCount++;
+
+                            // Add to liquid assets if the asset type is liquid
+                            var isLiquid = asset.AssetType?.IsLiquid ?? true; // Default to liquid if no type
+                            if (isLiquid)
+                            {
+                                liquidAssetSummary += convertedValue.Value;
+                            }
                         }
                         else
                         {
@@ -249,6 +257,7 @@ public static class AssetEndpoints
             }
 
             var totalSummary = assetSummary - debtSummary;
+            var liquidNetWorth = liquidAssetSummary - debtSummary;
 
             var summary = new AssetSummaryResponse
             {
@@ -257,6 +266,8 @@ public static class AssetEndpoints
                 DebtSummary = debtSummary,
                 DebtCount = debtCount,
                 TotalSummary = totalSummary,
+                LiquidAssetSummary = liquidAssetSummary,
+                LiquidNetWorth = liquidNetWorth,
                 LastUpdated = lastUpdated,
                 CurrencyCode = preferredCurrency
             };
