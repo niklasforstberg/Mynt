@@ -19,3 +19,16 @@ VALUES
     ('Options', 1, 0, GETDATE(), GETDATE()),
     ('Futures', 1, 0, GETDATE(), GETDATE()),
     ('Commodities', 1, 0, GETDATE(), GETDATE());
+
+INSERT INTO [Mynt].[dbo].[AssetTypes] ([DefaultName], [IsAsset], [IsPhysical], [CreatedAt], [UpdatedAt])
+VALUES 
+    ('Credit Card', 0, 0, GETDATE(), GETDATE()),
+    ('Personal Loan', 0, 0, GETDATE(), GETDATE()),
+    ('Student Loan', 0, 0, GETDATE(), GETDATE()),
+    ('Mortgage', 0, 0, GETDATE(), GETDATE()),
+    ('Auto Loan', 0, 0, GETDATE(), GETDATE()),
+    ('Business Loan', 0, 0, GETDATE(), GETDATE()),
+    ('Medical Debt', 0, 0, GETDATE(), GETDATE()),
+    ('Tax Debt', 0, 0, GETDATE(), GETDATE()),
+    ('Line of Credit', 0, 0, GETDATE(), GETDATE()),
+    ('Payday Loan', 0, 0, GETDATE(), GETDATE());
