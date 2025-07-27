@@ -12,16 +12,22 @@ public static class AssetTypeEndpoints
     public static void MapAssetTypeEndpoints(this IEndpointRouteBuilder app)
     {
         // Get all asset types
-        app.MapGet("/api/asset-types", async (ApplicationDbContext db, string? lang) =>
+        app.MapGet("/api/asset-types", async (ApplicationDbContext db, string? lang, bool? isAsset) =>
         {
-            var query = await db.AssetTypes
+            var query = db.AssetTypes
                 .Include(at => at.Translations)
-                .ToListAsync();
+                .AsQueryable();
 
-            return query.Select(at => new AssetTypeListResponse
+            // Filter by asset type if specified
+            if (isAsset.HasValue)
+                query = query.Where(at => at.IsAsset == isAsset.Value);
+
+            var results = await query.ToListAsync();
+
+            return results.Select(at => new AssetTypeListResponse
             {
                 Id = at.Id,
-                Name = !string.IsNullOrEmpty(lang) 
+                Name = !string.IsNullOrEmpty(lang)
                     ? at.Translations.FirstOrDefault(t => t.LanguageCode == lang)?.Name ?? at.DefaultName
                     : at.DefaultName,
                 IsAsset = at.IsAsset,
@@ -87,10 +93,10 @@ public static class AssetTypeEndpoints
             // Update basic properties if provided
             if (!string.IsNullOrEmpty(request.DefaultName))
                 assetType.DefaultName = request.DefaultName;
-            
+
             if (request.IsAsset.HasValue)
                 assetType.IsAsset = request.IsAsset.Value;
-            
+
             if (request.IsPhysical.HasValue)
                 assetType.IsPhysical = request.IsPhysical.Value;
 
@@ -177,4 +183,4 @@ public static class AssetTypeEndpoints
             return Results.Ok(response);
         });
     }
-} 
+}
