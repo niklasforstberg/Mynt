@@ -64,17 +64,23 @@ public static class AssetEndpoints
         });
 
         // READ: Get all assets for the current user
-        group.MapGet("/", async (ApplicationDbContext db, HttpContext context) =>
+        group.MapGet("/", async (ApplicationDbContext db, HttpContext context, bool? isAsset) =>
         {
             var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             Console.WriteLine($"User ID: {userId}");
             Console.WriteLine($"Assets: {db.Assets.Count()}");
-            var assets = await db.Assets
+
+            var query = db.Assets
                 .Include(a => a.AssetType)
                 .Include(a => a.FinancialGroup)
                 .Include(a => a.AssetValues.OrderByDescending(av => av.RecordedAt).Take(1))
-                .Where(a => a.UserId == userId)
-                .ToListAsync();
+                .Where(a => a.UserId == userId);
+
+            // Filter by asset type if specified
+            if (isAsset.HasValue)
+                query = query.Where(a => a.AssetType != null && a.AssetType.IsAsset == isAsset.Value);
+
+            var assets = await query.ToListAsync();
 
             var response = assets.Select(a => new AssetResponse
             {
